@@ -3,11 +3,21 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider } from '@material-ui/core/styles';
+import theme from './theme'
+import { Provider } from 'react-redux'
+import {loadState} from "./store/localStorage";
+import configureStore from "./store/configureStore";
+
+const state = loadState();
+const store = configureStore(state)
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
+  </Provider>,
   document.getElementById('root')
 );
 
