@@ -1,11 +1,11 @@
 const initialState = {
-    count: 0
+    messages: []
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case 'INCREMENT':
-            return {...state, count: state.count + 1}
+        case 'FETCH_MESSAGE_FOR_GROUP':
+            return {...state, messages: action.payload}
         default : 
             return state;
     }

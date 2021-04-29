@@ -1,11 +1,11 @@
 const initialState = {
-    count: 0
+    light: true
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case 'INCREMENT':
-            return {...state, count: state.count + 1}
+        case 'SWITCH_THEME':
+            return {...state, light: !state.light}
         default : 
             return state;
     }

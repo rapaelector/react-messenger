@@ -1,11 +1,11 @@
 const initialState = {
-    count: 0
+    chanels: []
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case 'INCREMENT':
-            return {...state, count: state.count + 1}
+        case 'FETCH_CHANEL_CURRENT_USER':
+            return {...state, chanels: action.payload.Groups}
         default : 
             return state;
     }

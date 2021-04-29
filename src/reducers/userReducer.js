@@ -1,11 +1,11 @@
 const initialState = {
-    count: 0
+    users: []
 }
 
 export default function(state = initialState, action) {
     switch(action.type) {
-        case 'INCREMENT':
-            return {...state, count: state.count + 1}
+        case 'FETCH_USERS_EXPRESS':
+            return {...state, users: action.payload}
         default : 
             return state;
     }

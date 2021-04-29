@@ -1,83 +1,27 @@
-import {createStore, applyMiddleware, compose} from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import { createStore, applyMiddleware, compose } from 'redux';
+import createSagaMiddleware from 'redux-saga';
 import rootReducer from '../reducers';
-import createSagaMiddleware, {END} from 'redux-saga';
-import sagas from '../sagas';
-import {saveState} from "./localStorage";
 
+const persistConfig = {
+  key: 'root',
+  storage,
+  whiteList:['counter']
+};
 
+const composeEnhancers =  typeof window === 'object' && window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] ? 
+      window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__']({ }) : compose;
+      
 const sagaMiddleware = createSagaMiddleware();
+const enhancer = composeEnhancers(
+    applyMiddleware(sagaMiddleware /*other middleware*/),
+            /* other store enhancers if any */
+);
 
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-/**
- * This function is responsible to configure the PROD store
- * @param persistedState
- * @returns {Store<any, Action<any>> & Store<S & {}, A> & {dispatch: any}}
- */
-function configureStoreProd(persistedState) {
+let store = createStore(persistedReducer, enhancer);
+let persistor = persistStore(store);
 
-    const middlewares = [
-        sagaMiddleware
-    ];
-
-    const store = createStore(rootReducer,
-        persistedState || {},
-        compose(
-            applyMiddleware(...middlewares)
-        )
-    );
-
-    //Subscribe saveState function as a listener
-    //saveState function will be called every time the state change
-    store.subscribe(() => {
-        saveState( {
-            auth: store.getState().auth
-        });
-    });
-
-    sagaMiddleware.run(sagas);
-    store.close = () => store.dispatch(END);
-
-    return store;
-}
-
-/**
- * This function is responsible to configure the DEV store
- * @param persistedState
- * @returns {any}
- */
-function configureStoreDev(persistedState) {
-    const logger = (store) => (next) => (action) => {
-        next(action);
-        console.log(action);
-    };
-
-    const middlewares = [
-        sagaMiddleware,
-       //logger
-    ];
-
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // add support for Redux dev tools
-
-    const store = createStore(
-        rootReducer,
-        persistedState || {},
-        composeEnhancers(applyMiddleware(...middlewares))
-    );
-
-    //Subscribe saveState function as a listener
-    //saveState function will be called every time the state change
-    store.subscribe(() => {
-        saveState( {
-            auth: store.getState().auth
-        });
-    });
-
-    sagaMiddleware.run(sagas);
-    store.close = () => store.dispatch(END);
-
-    return store;
-}
-//Check if we are in DEV or PROD and configure the corresponding store
-const configureStore = process.env.NODE_ENV === 'production' ? configureStoreProd : configureStoreDev;
-
-export default configureStore;
+export { store, persistor, sagaMiddleware };

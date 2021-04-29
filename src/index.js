@@ -4,19 +4,23 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from '@material-ui/core/styles';
-import theme from './theme'
+import theme from './themes/theme'
+import darkTheme from './themes/darkTheme'
 import { Provider } from 'react-redux'
-import {loadState} from "./store/localStorage";
-import configureStore from "./store/configureStore";
+import { store, persistor, sagaMiddleware } from './store/configureStore';
+import rootSaga from './sagas'
+import { PersistGate } from 'redux-persist/integration/react';
+import { Paper } from '@material-ui/core';
 
-const state = loadState();
-const store = configureStore(state)
+sagaMiddleware.run(rootSaga);
+
+
 
 ReactDOM.render(
   <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <App />
-    </ThemeProvider>
+    <PersistGate loading={null} persistor={persistor}>
+          <App />
+    </PersistGate>
   </Provider>,
   document.getElementById('root')
 );
